@@ -2,6 +2,7 @@ import { ResponsiveContainer } from "recharts"
 import "mapbox-gl/dist/mapbox-gl.css"
 import mapboxgl from "mapbox-gl"
 import { useRef, useEffect } from "react"
+import dot from "@/assets/dot.png"
 
 const chargeBoxStatus = [
   { chargerId: 38001, location: { lat: "55.697874", long: "12.544396" }, charger_type: "DC", connector_status: "available" },
@@ -27,7 +28,6 @@ function getMarkerColor(status) {
 
 function Map() {
   const mapRef = useRef(null)
-  const loading = useRef(null)
 
   useEffect(() => {
     const map = new mapboxgl.Map({
@@ -47,13 +47,15 @@ function Map() {
         // Create custom marker element
         const el = document.createElement("div")
         el.className = "marker"
-        el.style.backgroundColor = getMarkerColor(charger.connector_status)
-        el.style.width = "20px"
-        el.style.height = "20px"
-        el.style.borderRadius = "50%"
-        el.style.border = "2px solid white"
-        el.style.boxShadow = "0 0 2px rgba(0,0,0,0.25)"
+        el.style.width = "100px"
+        el.style.height = "100px"
         el.style.cursor = "pointer"
+
+        const img = document.createElement("img")
+        img.style.width = "100%"
+        img.style.height = "100%"
+        img.src = dot
+        el.appendChild(img)
 
         // Create popup
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
@@ -75,7 +77,6 @@ function Map() {
 
   return (
     <div ref={mapRef} className="relative h-full w-full [&>*]:h-full">
-      <p ref={loading}>Loading...</p>
     </div>
   )
 }
