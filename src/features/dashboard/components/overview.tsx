@@ -2,7 +2,12 @@ import { ResponsiveContainer } from "recharts"
 import "mapbox-gl/dist/mapbox-gl.css"
 import mapboxgl from "mapbox-gl"
 import { useRef, useEffect } from "react"
-import dot from "@/assets/dot.png"
+import green400dot from "@/assets/green-400-dot.png"
+import green600dot from "@/assets/green-600-dot.png"
+import green800dot from "@/assets/green-800-dot.png"
+import orange600dot from "@/assets/orange-600-dot.png"
+import red600dot from "@/assets/red-600-dot.png"
+import blue500dot from "@/assets/blue-500-dot.png"
 
 const chargeBoxStatus = [
   { chargerId: 38001, location: { lat: "55.697874", long: "12.544396" }, charger_type: "DC", connector_status: "available" },
@@ -12,6 +17,19 @@ const chargeBoxStatus = [
   { chargerId: 38005, location: { lat: "55.708988", long: "12.554492" }, charger_type: "AC", connector_status: "charging" },
   { chargerId: 38006, location: { lat: "55.715360", long: "12.563131" }, charger_type: "HOME_CHARGER", connector_status: "available" },
 ]
+
+function getMarkerImage(status) {
+  switch (status) {
+    case "available":
+      return green600dot
+    case "charging":
+      return blue500dot
+    case "unavailable":
+      return red600dot
+    default:
+      return orange600dot
+  }
+}
 
 function getMarkerColor(status) {
   switch (status) {
@@ -54,7 +72,7 @@ function Map() {
         const img = document.createElement("img")
         img.style.width = "100%"
         img.style.height = "100%"
-        img.src = dot
+        img.src = getMarkerImage(charger.connector_status)
         el.appendChild(img)
 
         // Create popup
