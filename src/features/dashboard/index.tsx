@@ -10,6 +10,7 @@ import { Overview } from "./components/overview"
 import { RecentSales } from "./components/recent-sales"
 
 import { IconChargingPile, IconHeartbeat, IconPlugX } from "@tabler/icons-react"
+import { WebSocketTester } from "@/components/WebSocketTester"
 
 export default function Dashboard() {
   return (
@@ -124,6 +125,7 @@ export default function Dashboard() {
             </div>
           </TabsContent>
         </Tabs>
+        <WebSocketTester />
       </Main>
     </>
   )
