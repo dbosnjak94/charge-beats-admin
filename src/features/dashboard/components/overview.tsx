@@ -33,8 +33,8 @@ function Map() {
 
 export function Overview() {
   return (
-    <ResponsiveContainer width="95%" height="100%">
-      <div className="w-full h-full">
+    <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full h-full pl-4">
         {/* Add a wrapper div */}
         <ResponsiveContainer>
           <Map />
