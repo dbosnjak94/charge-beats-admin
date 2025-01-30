@@ -1,90 +1,49 @@
 import { ResponsiveContainer } from 'recharts'
-import map from '../../../../public/images/map.png'
+import 'mapbox-gl/dist/mapbox-gl.css'
+import mapboxgl from 'mapbox-gl'
+import { useRef, useEffect } from 'react'
+import styled from 'styled-components'
 
-// const data = [
-//   {
-//     name: 'Jan',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Feb',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Mar',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Apr',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'May',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Jun',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Jul',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Aug',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Sep',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Oct',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Nov',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Dec',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-// ]
+const StyledMap = styled.div`
+  position: relative;
+  height: 100%;
+  width: 100%;
 
-// export function Overview() {
-//   return (
-//     <ResponsiveContainer width='100%' height={350}>
-//       <BarChart data={data}>
-//         <XAxis
-//           dataKey='name'
-//           stroke='#888888'
-//           fontSize={12}
-//           tickLine={false}
-//           axisLine={false}
-//         />
-//         <YAxis
-//           stroke='#888888'
-//           fontSize={12}
-//           tickLine={false}
-//           axisLine={false}
-//           tickFormatter={(value) => `$${value}`}
-//         />
-//         <Bar
-//           dataKey='total'
-//           fill='currentColor'
-//           radius={[4, 4, 0, 0]}
-//           className='fill-primary'
-//         />
-//       </BarChart>
-//     </ResponsiveContainer>
-//   )
-// }
+  & * {
+    height: 100%;
+  }
+`;
+
+function Map() {
+  const mapRef = useRef(null);
+  const loading = useRef(null);
+
+  useEffect(() => {
+    const map = new mapboxgl.Map({
+      container: mapRef.current as unknown as HTMLElement,
+      // See style options here: https://docs.mapbox.com/api/maps/#styles
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [-104.9876, 39.7405],
+      zoom: 12.5,
+    });
+    // add navigation control (the +/- zoom buttons)
+    map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+    map.on('load', function () {
+      map.resize();
+    });
+    // clean up on unmount
+    return () => map?.remove();
+  }, []);
+
+  return <StyledMap ref={mapRef}><p ref={loading}>Loading...</p></StyledMap>;
+}
 
 export function Overview() {
+  mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuaWVsZHJlamVyIiwiYSI6ImNrZ2twYjI5NjBqcjAyd2xsYXQwZHgyNDUifQ.C6IJplie4y-yK0X3Opf4yw';
+
   return (
-    <ResponsiveContainer width='70%' height={200}>
-      <img src={map} width={60} height={60} />
+    <ResponsiveContainer width='70%' height='100%'>
+      <Map />
     </ResponsiveContainer>
   )
 }
