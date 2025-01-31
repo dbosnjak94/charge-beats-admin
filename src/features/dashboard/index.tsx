@@ -9,8 +9,23 @@ import { RecentSales } from "./components/recent-sales"
 
 import { IconChargingPile, IconHeartbeat, IconPlugX, IconActivityHeartbeat } from "@tabler/icons-react"
 import { WebSocketTester } from "@/components/WebSocketTester"
+import { useChargerWebSocket } from "@/hooks/use-charger-web-socket"
 
 export default function Dashboard() {
+  const { chargers } = useChargerWebSocket("ws://localhost:8080")
+
+  const numberOfChargers = chargers.length
+  const offlineChargers = chargers.filter(
+    (item) => item.connector_status === "unavailable" || item.connector_status === "faulted" || item.connector_status === "suspended"
+  ).length
+  const activeChargers = chargers.filter(
+    (item) =>
+      item.connector_status === "available" ||
+      item.connector_status === "charging" ||
+      item.connector_status === "finishing" ||
+      item.connector_status === "preparing"
+  ).length
+
   return (
     <>
       {/* ===== Top Heading ===== */}
@@ -53,7 +68,7 @@ export default function Dashboard() {
                   <IconChargingPile />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">54000</div>
+                  <div className="text-2xl font-bold">{numberOfChargers}</div>
                   <p className="text-xs text-muted-foreground">+20.1% from last month</p>
                 </CardContent>
               </Card>
@@ -73,7 +88,7 @@ export default function Dashboard() {
                   <IconPlugX />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">1233</div>
+                  <div className="text-2xl font-bold">{offlineChargers}</div>
                   <p className="text-xs text-muted-foreground">-19% from last month</p>
                 </CardContent>
               </Card>
@@ -83,7 +98,7 @@ export default function Dashboard() {
                   <IconActivityHeartbeat />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">53341</div>
+                  <div className="text-2xl font-bold">{activeChargers}</div>
                   <p className="text-xs text-muted-foreground">+201 since last hour</p>
                 </CardContent>
               </Card>

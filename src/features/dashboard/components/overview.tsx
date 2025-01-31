@@ -8,19 +8,8 @@ import blue500dot from "@/assets/blue-500-dot.png"
 import greydot from "@/assets/grey-dot.png"
 import { useChargerWebSocket } from "@/hooks/use-charger-web-socket"
 import { playAngryRobotBass } from "@/sounds/drum-and-bass/angry-robot-bass"
-import { toggleTechnoSynth } from "@/sounds/drum-and-bass/techno-synth"
-import { toggleTechnoDrums } from "@/sounds/techno/tehcno-drum"
 import { toggleAcidLead } from "@/sounds/techno/acid-lead"
 import { toggleAcidBass } from "@/sounds/techno/acid-bass"
-
-const chargeBoxStatus = [
-  { chargerId: 38001, location: { lat: "55.697874", long: "12.544396" }, charger_type: "DC", connector_status: "available" },
-  { chargerId: 38002, location: { lat: "55.694730", long: "12.554524" }, charger_type: "AC", connector_status: "unavailable" },
-  { chargerId: 38003, location: { lat: "55.711153", long: "12.566810" }, charger_type: "HOME_CHARGER", connector_status: "available" },
-  { chargerId: 38004, location: { lat: "55.715436", long: "12.571116" }, charger_type: "DC", connector_status: "available" },
-  { chargerId: 38005, location: { lat: "55.708988", long: "12.554492" }, charger_type: "AC", connector_status: "charging" },
-  { chargerId: 38006, location: { lat: "55.715360", long: "12.563131" }, charger_type: "HOME_CHARGER", connector_status: "available" },
-]
 
 function getMarkerImage(status: string) {
   switch (status) {
@@ -52,7 +41,7 @@ function Map() {
   const mapRef = useRef(null)
   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({})
   const mapInstanceRef = useRef<mapboxgl.Map | null>(null)
-  const { chargers = chargeBoxStatus, isConnected, error } = useChargerWebSocket("ws://localhost:8080")
+  const { chargers, isConnected, error } = useChargerWebSocket("ws://localhost:8080")
 
   // First useEffect - Map initialization
   useEffect(() => {
