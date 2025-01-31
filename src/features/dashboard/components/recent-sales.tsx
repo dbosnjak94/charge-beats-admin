@@ -7,11 +7,11 @@ import { useChargerWebSocket } from "@/hooks/use-charger-web-socket"
 const getStatusColor = (status) => {
   const colors = {
     available: "bg-green-600",
-    charging: "bg-green-800",
-    finishing: "bg-green-400",
-    preparing: "bg-green-400",
-    suspended: "bg-orange-600",
-    faulted: "bg-red-600",
+    charging: "bg-blue-500",
+    finishing: "bg-stone-500",
+    preparing: "bg-stone-500",
+    suspended: "bg-stone-500",
+    faulted: "bg-stone-500",
     unavailable: "bg-red-600",
   }
   return colors[status] || "bg-gray-100"

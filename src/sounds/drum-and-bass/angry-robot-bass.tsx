@@ -1,16 +1,158 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import React, { useState, useRef, useEffect } from 'react'
-import * as Tone from 'tone'
-import { Button } from '@/components/ui/button'
+import React, { useState, useRef, useEffect } from "react"
+import * as Tone from "tone"
+import { Button } from "@/components/ui/button"
+
+// const createAngryRobotBass = () => {
+//   // Create an FM synth for robotic character
+//   const fmSynth = new Tone.FMSynth({
+//     harmonicity: 3.01, // Slightly detuned for robot character
+//     modulationIndex: 10,
+//     oscillator: {
+//       type: "square", // Sharp, digital sound
+//     },
+//     envelope: {
+//       attack: 0.01,
+//       decay: 0.2,
+//       sustain: 0.8,
+//       release: 0.2,
+//     },
+//     modulation: {
+//       type: "square",
+//     },
+//     modulationEnvelope: {
+//       attack: 0.05,
+//       decay: 0.1,
+//       sustain: 0.2,
+//       release: 0.1,
+//     },
+//   })
+
+//   // Add sub-bass layer using additional synth
+//   const subSynth = new Tone.MonoSynth({
+//     oscillator: {
+//       type: "sine",
+//     },
+//     envelope: {
+//       attack: 0.02,
+//       decay: 0.2,
+//       sustain: 0.9,
+//       release: 0.3,
+//     },
+//     filterEnvelope: {
+//       attack: 0.05,
+//       decay: 0.5,
+//       sustain: 0.7,
+//       release: 0.2,
+//       baseFrequency: 50,
+//       octaves: 2,
+//     },
+//   })
+
+//   // Effects chain for aggressive character
+//   const crusher = new Tone.BitCrusher(6) // Add digital artifacts
+//   const filter = new Tone.Filter({
+//     frequency: 800,
+//     type: "lowpass",
+//     rolloff: -24,
+//   })
+//   const distortion = new Tone.Distortion({
+//     distortion: 0.4,
+//     wet: 0.3,
+//   })
+//   const compressor = new Tone.Compressor({
+//     threshold: -20,
+//     ratio: 6,
+//     attack: 0.02,
+//     release: 0.2,
+//   })
+
+//   // Connect everything
+//   fmSynth.chain(crusher, filter, distortion, compressor, Tone.Destination)
+//   subSynth.chain(filter, compressor, Tone.Destination)
+
+//   // Adjust volumes
+//   fmSynth.volume.value = -6
+//   subSynth.volume.value = -12
+
+//   return { fmSynth, subSynth }
+// }
+
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
+
+// Function to be exported and used elsewhere
+export const playAngryRobotBass = async () => {
+  await Tone.start()
+
+  // Create synths and effects chain
+  const synths = createAngryRobotBass()
+
+  // Create sequences for looping
+  const mainPattern = [
+    { pitch: "C2", duration: "8n", velocity: 0.9 },
+    { pitch: "C2", duration: "16n", velocity: 0.7 },
+    null,
+    { pitch: "G1", duration: "8n", velocity: 0.9 },
+    { pitch: "C2", duration: "8n", velocity: 0.8 },
+    null,
+    { pitch: "E1", duration: "8n", velocity: 0.9 },
+    { pitch: "C2", duration: "16n", velocity: 0.7 },
+  ]
+
+  const subPattern = [{ pitch: "C1", duration: "4n", velocity: 0.7 }, null, { pitch: "G0", duration: "4n", velocity: 0.7 }, null]
+
+  const sequences = {
+    main: new Tone.Sequence(
+      (time, note) => {
+        if (note !== null) {
+          synths.fmSynth.triggerAttackRelease(note.pitch, note.duration, time, note.velocity)
+        }
+      },
+      mainPattern,
+      "8n"
+    ),
+    sub: new Tone.Sequence(
+      (time, note) => {
+        if (note !== null) {
+          synths.subSynth.triggerAttackRelease(note.pitch, note.duration, time, note.velocity)
+        }
+      },
+      subPattern,
+      "4n"
+    ),
+  }
+
+  // Start the transport if it's not already running
+  if (Tone.Transport.state !== "started") {
+    Tone.Transport.start()
+  }
+
+  // Set BPM
+  Tone.Transport.bpm.value = 174
+
+  // Start both sequences
+  Object.values(sequences).forEach((seq) => seq.start(0))
+
+  // Return a cleanup function that the caller can use to stop the sound
+  return () => {
+    Object.values(sequences).forEach((seq) => {
+      seq.stop()
+      seq.dispose()
+    })
+    synths.fmSynth.dispose()
+    synths.subSynth.dispose()
+  }
+}
 
 const createAngryRobotBass = () => {
   // Create an FM synth for robotic character
   const fmSynth = new Tone.FMSynth({
-    harmonicity: 3.01, // Slightly detuned for robot character
+    harmonicity: 3.01,
     modulationIndex: 10,
     oscillator: {
-      type: 'square', // Sharp, digital sound
+      type: "square",
     },
     envelope: {
       attack: 0.01,
@@ -19,7 +161,7 @@ const createAngryRobotBass = () => {
       release: 0.2,
     },
     modulation: {
-      type: 'square',
+      type: "square",
     },
     modulationEnvelope: {
       attack: 0.05,
@@ -32,7 +174,7 @@ const createAngryRobotBass = () => {
   // Add sub-bass layer using additional synth
   const subSynth = new Tone.MonoSynth({
     oscillator: {
-      type: 'sine',
+      type: "sine",
     },
     envelope: {
       attack: 0.02,
@@ -50,11 +192,11 @@ const createAngryRobotBass = () => {
     },
   })
 
-  // Effects chain for aggressive character
-  const crusher = new Tone.BitCrusher(6) // Add digital artifacts
+  // Effects chain
+  const crusher = new Tone.BitCrusher(6)
   const filter = new Tone.Filter({
     frequency: 800,
-    type: 'lowpass',
+    type: "lowpass",
     rolloff: -24,
   })
   const distortion = new Tone.Distortion({
@@ -110,52 +252,37 @@ export const AngryRobotBassButton = (props) => {
     if (!sequencesRef.current) {
       // Create an aggressive robotic pattern
       const mainPattern = [
-        { pitch: 'C2', duration: '8n', velocity: 0.9 },
-        { pitch: 'C2', duration: '16n', velocity: 0.7 },
+        { pitch: "C2", duration: "8n", velocity: 0.9 },
+        { pitch: "C2", duration: "16n", velocity: 0.7 },
         null,
-        { pitch: 'G1', duration: '8n', velocity: 0.9 },
-        { pitch: 'C2', duration: '8n', velocity: 0.8 },
+        { pitch: "G1", duration: "8n", velocity: 0.9 },
+        { pitch: "C2", duration: "8n", velocity: 0.8 },
         null,
-        { pitch: 'E1', duration: '8n', velocity: 0.9 },
-        { pitch: 'C2', duration: '16n', velocity: 0.7 },
+        { pitch: "E1", duration: "8n", velocity: 0.9 },
+        { pitch: "C2", duration: "16n", velocity: 0.7 },
       ]
 
       // Sub bass follows a simpler pattern
-      const subPattern = [
-        { pitch: 'C1', duration: '4n', velocity: 0.7 },
-        null,
-        { pitch: 'G0', duration: '4n', velocity: 0.7 },
-        null,
-      ]
+      const subPattern = [{ pitch: "C1", duration: "4n", velocity: 0.7 }, null, { pitch: "G0", duration: "4n", velocity: 0.7 }, null]
 
       sequencesRef.current = {
         main: new Tone.Sequence(
           (time, note) => {
             if (note !== null) {
-              synthsRef.current.fmSynth.triggerAttackRelease(
-                note.pitch,
-                note.duration,
-                time,
-                note.velocity
-              )
+              synthsRef.current.fmSynth.triggerAttackRelease(note.pitch, note.duration, time, note.velocity)
             }
           },
           mainPattern,
-          '8n'
+          "8n"
         ),
         sub: new Tone.Sequence(
           (time, note) => {
             if (note !== null) {
-              synthsRef.current.subSynth.triggerAttackRelease(
-                note.pitch,
-                note.duration,
-                time,
-                note.velocity
-              )
+              synthsRef.current.subSynth.triggerAttackRelease(note.pitch, note.duration, time, note.velocity)
             }
           },
           subPattern,
-          '4n'
+          "4n"
         ),
       }
     }
@@ -165,7 +292,7 @@ export const AngryRobotBassButton = (props) => {
     await initializeAudio()
 
     if (!isPlaying) {
-      if (Tone.Transport.state !== 'started') {
+      if (Tone.Transport.state !== "started") {
         Tone.Transport.start()
       }
       Tone.Transport.bpm.value = 174 // Set to specified 174 BPM
@@ -178,11 +305,8 @@ export const AngryRobotBassButton = (props) => {
   }
 
   return (
-    <Button
-      onClick={togglePlay}
-      className={`${props.className} ${isPlaying ? 'bg-red-500 hover:bg-red-600' : ''}`}
-    >
-      {isPlaying ? 'Stop Angry Robot Bass' : 'Play Angry Robot Bass'}
+    <Button onClick={togglePlay} className={`${props.className} ${isPlaying ? "bg-red-500 hover:bg-red-600" : ""}`}>
+      {isPlaying ? "Stop Angry Robot Bass" : "Play Angry Robot Bass"}
     </Button>
   )
 }

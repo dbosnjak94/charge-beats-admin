@@ -20,9 +20,18 @@ interface WSMessage {
   data?: ChargerStatus
 }
 
+const defaultChargers: ChargerStatus[] = [
+  { chargerId: 38001, location: { lat: "55.697874", long: "12.544396" }, charger_type: "DC", connector_status: "available" },
+  { chargerId: 38002, location: { lat: "55.694730", long: "12.554524" }, charger_type: "AC", connector_status: "unavailable" },
+  { chargerId: 38003, location: { lat: "55.711153", long: "12.566810" }, charger_type: "HOME_CHARGER", connector_status: "available" },
+  { chargerId: 38004, location: { lat: "55.715436", long: "12.571116" }, charger_type: "DC", connector_status: "available" },
+  { chargerId: 38005, location: { lat: "55.708988", long: "12.554492" }, charger_type: "AC", connector_status: "charging" },
+  { chargerId: 38006, location: { lat: "55.715360", long: "12.563131" }, charger_type: "HOME_CHARGER", connector_status: "available" },
+]
+
 // hooks/use-charger-web-socket.ts
 export function useChargerWebSocket(url: string) {
-  const [chargers, setChargers] = useState<ChargerStatus[]>([])
+  const [chargers, setChargers] = useState<ChargerStatus[]>(defaultChargers)
 
   useEffect(() => {
     const ws = new WebSocket(url)

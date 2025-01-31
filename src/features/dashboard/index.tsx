@@ -3,13 +3,11 @@ import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { Header } from "@/components/layout/header"
 import { Main } from "@/components/layout/main"
 import { TopNav } from "@/components/layout/top-nav"
-import { ProfileDropdown } from "@/components/profile-dropdown"
-import { Search } from "@/components/search"
 import { ThemeSwitch } from "@/components/theme-switch"
 import { Overview } from "./components/overview"
 import { RecentSales } from "./components/recent-sales"
 
-import { IconChargingPile, IconHeartbeat, IconPlugX } from "@tabler/icons-react"
+import { IconChargingPile, IconHeartbeat, IconPlugX, IconActivityHeartbeat } from "@tabler/icons-react"
 import { WebSocketTester } from "@/components/WebSocketTester"
 
 export default function Dashboard() {
@@ -19,12 +17,11 @@ export default function Dashboard() {
       <Header>
         <TopNav links={topNav} />
         <div className="ml-auto flex items-center space-x-4">
-          <Search />
+          {/* <Search /> */}
           <ThemeSwitch />
-          <ProfileDropdown />
+          {/* <ProfileDropdown /> */}
         </div>
       </Header>
-
       {/* ===== Main ===== */}
       <Main>
         <div className="mb-2 flex items-center justify-between space-y-2">
@@ -83,18 +80,7 @@ export default function Dashboard() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Currently active</CardTitle>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="h-4 w-4 text-muted-foreground"
-                  >
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                  </svg>
+                  <IconActivityHeartbeat />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">53341</div>
