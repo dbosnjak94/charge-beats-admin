@@ -20,82 +20,38 @@ interface WSMessage {
   data?: ChargerStatus
 }
 
+// hooks/use-charger-web-socket.ts
 export function useChargerWebSocket(url: string) {
   const [chargers, setChargers] = useState<ChargerStatus[]>([])
-  const [isConnected, setIsConnected] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const wsRef = useRef<WebSocket | null>(null)
-
-  const connect = useCallback(() => {
-    try {
-      const ws = new WebSocket(url)
-      wsRef.current = ws
-
-      ws.onopen = () => {
-        setIsConnected(true)
-        setError(null)
-      }
-
-      ws.onmessage = (event) => {
-        try {
-          const message: WSMessage = JSON.parse(event.data)
-
-          switch (message.type) {
-            case "station_update":
-              if (message.data) {
-                setChargers((prev) => {
-                  const updated = [...prev]
-                  const index = updated.findIndex((c) => c.chargerId === message.data!.chargerId)
-                  if (index >= 0) {
-                    updated[index] = message.data!
-                  } else {
-                    updated.push(message.data!)
-                  }
-                  return updated
-                })
-              }
-              break
-            case "error":
-              setError(message.message || "Unknown error occurred")
-              break
-          }
-        } catch (err) {
-          setError("Failed to parse WebSocket message")
-        }
-      }
-
-      ws.onerror = () => {
-        setError("WebSocket error occurred")
-        setIsConnected(false)
-      }
-
-      ws.onclose = () => {
-        setIsConnected(false)
-        // Implement reconnection logic
-        setTimeout(() => connect(), 3000)
-      }
-
-      return () => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.close()
-        }
-      }
-    } catch (err) {
-      setError("Failed to establish WebSocket connection")
-      setIsConnected(false)
-    }
-  }, [url])
 
   useEffect(() => {
-    const cleanup = connect()
-    return () => {
-      if (cleanup) cleanup()
-    }
-  }, [connect])
+    const ws = new WebSocket(url)
 
-  return {
-    chargers,
-    isConnected,
-    error,
-  }
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data)
+        console.log("WebSocket message received:", message) // Debug log
+
+        if (message.type === "station_update" && message.data) {
+          setChargers((prev) => {
+            // Find and update existing charger or add new one
+            const updated = [...prev]
+            const index = updated.findIndex((c) => c.chargerId === message.data.chargerId)
+            if (index >= 0) {
+              updated[index] = message.data
+            } else {
+              updated.push(message.data)
+            }
+            return updated
+          })
+        }
+      } catch (error) {
+        console.error("Error processing WebSocket message:", error)
+      }
+    }
+
+    return () => ws.close()
+  }, [url])
+
+  return { chargers, isConnected: true, error: null }
 }

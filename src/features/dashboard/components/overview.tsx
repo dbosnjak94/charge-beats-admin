@@ -9,6 +9,8 @@ import orange600dot from "@/assets/orange-600-dot.png"
 import red600dot from "@/assets/red-600-dot.png"
 import blue500dot from "@/assets/blue-500-dot.png"
 import { useChargerWebSocket } from "@/hooks/use-charger-web-socket"
+import TechnoDrumButton from "@/sounds/techno/tehcno-drum"
+import AngryRobotBassButton from "@/sounds/drum-and-bass/angry-robot-bass"
 
 const chargeBoxStatus = [
   { chargerId: 38001, location: { lat: "55.697874", long: "12.544396" }, charger_type: "DC", connector_status: "available" },
@@ -47,189 +49,10 @@ function getMarkerColor(status) {
 
 // function Map() {
 //   const mapRef = useRef(null)
-
-//   useEffect(() => {
-//     const map = new mapboxgl.Map({
-//       container: mapRef.current as unknown as HTMLElement,
-//       style: "mapbox://styles/mapbox/streets-v11",
-//       center: [12.548914, 55.703588],
-//       zoom: 12.5,
-//     })
-
-//     map.addControl(new mapboxgl.NavigationControl(), "bottom-right")
-
-//     map.on("load", function () {
-//       map.resize()
-
-//       // Add markers for each charge box
-//       chargeBoxStatus.forEach((charger) => {
-//         // Create custom marker element
-//         const el = document.createElement("div")
-//         el.className = "marker"
-//         el.style.width = "100px"
-//         el.style.height = "100px"
-//         el.style.cursor = "pointer"
-
-//         const img = document.createElement("img")
-//         img.style.width = "100%"
-//         img.style.height = "100%"
-//         img.src = getMarkerImage(charger.connector_status)
-//         el.appendChild(img)
-
-//         // Create popup
-//         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-//             <h3>Charger ${charger.chargerId}</h3>
-//             <p>Type: ${charger.charger_type}</p>
-//             <p>Status: ${charger.connector_status}</p>
-//           `)
-
-//         // Add marker to map
-//         new mapboxgl.Marker(el)
-//           .setLngLat([parseFloat(charger.location.long), parseFloat(charger.location.lat)])
-//           .setPopup(popup)
-//           .addTo(map)
-//       })
-//     })
-
-//     return () => map?.remove()
-//   }, [])
-
-//   return <div ref={mapRef} className="relative h-full w-full [&>*]:h-full"></div>
-// }
-
-// export function Overview() {
-//   mapboxgl.accessToken = "pk.eyJ1IjoiZGFuaWVsZHJlamVyIiwiYSI6ImNrZ2twYjI5NjBqcjAyd2xsYXQwZHgyNDUifQ.C6IJplie4y-yK0X3Opf4yw"
-
-//   return (
-//     <ResponsiveContainer width="100%" height="100%">
-//       <div className="w-full h-full pl-4">
-//         <ResponsiveContainer>
-//           <Map />
-//         </ResponsiveContainer>
-//       </div>
-//     </ResponsiveContainer>
-//   )
-// }
-
-function Map() {
-  const mapRef = useRef(null)
-  const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({})
-  const mapInstanceRef = useRef<mapboxgl.Map | null>(null)
-  const { chargers, isConnected, error } = useChargerWebSocket("ws://localhost:8080")
-
-  useEffect(() => {
-    const map = new mapboxgl.Map({
-      container: mapRef.current as unknown as HTMLElement,
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: [12.548914, 55.703588],
-      zoom: 12.5,
-    })
-
-    console.log("chargers", chargers)
-
-    mapInstanceRef.current = map
-    map.addControl(new mapboxgl.NavigationControl(), "bottom-right")
-
-    map.on("load", function () {
-      map.resize()
-    })
-
-    return () => {
-      // Clean up markers
-      Object.values(markersRef.current).forEach((marker) => marker.remove())
-      markersRef.current = {}
-      map?.remove()
-    }
-  }, [chargers]) // Only run once on mount
-
-  // Separate useEffect for handling marker updates
-  useEffect(() => {
-    if (!mapInstanceRef.current || !chargers.length) return
-
-    chargers.forEach((charger) => {
-      const existingMarker = markersRef.current[charger.chargerId]
-
-      // Create marker element
-      const el = document.createElement("div")
-      el.className = "marker"
-      el.style.width = "100px"
-      el.style.height = "100px"
-      el.style.cursor = "pointer"
-
-      const img = document.createElement("img")
-      img.style.width = "100%"
-      img.style.height = "100%"
-      img.src = getMarkerImage(charger.connector_status)
-      el.appendChild(img)
-
-      // Create popup
-      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-        <h3>Charger ${charger.chargerId}</h3>
-        <p>Type: ${charger.charger_type}</p>
-        <p>Status: ${charger.connector_status}</p>
-      `)
-
-      if (existingMarker) {
-        // Update existing marker
-        existingMarker.setLngLat([parseFloat(charger.location.long), parseFloat(charger.location.lat)])
-        existingMarker.getElement().replaceWith(el)
-        existingMarker.setPopup(popup)
-      } else {
-        // Create new marker
-        const newMarker = new mapboxgl.Marker(el)
-          .setLngLat([parseFloat(charger.location.long), parseFloat(charger.location.lat)])
-          .setPopup(popup)
-          .addTo(mapInstanceRef.current)
-
-        markersRef.current[charger.chargerId] = newMarker
-      }
-    })
-
-    // Remove markers that are no longer in the data
-    Object.entries(markersRef.current).forEach(([chargerId, marker]) => {
-      if (!chargers.find((c) => c.chargerId === parseInt(chargerId))) {
-        marker.remove()
-        delete markersRef.current[parseInt(chargerId)]
-      }
-    })
-  }, [chargers]) // Update whenever chargers data changes
-
-  // Optional: Add connection status indicator
-  const connectionStatus = (
-    <div className="absolute top-2 right-2 z-10 space-y-2">
-      {error && <div className="bg-red-500 text-white px-4 py-2 rounded shadow">{error}</div>}
-      <div className={`px-4 py-2 rounded shadow ${isConnected ? "bg-green-500" : "bg-yellow-500"} text-white`}>
-        {isConnected ? "Connected" : "Connecting..."}
-      </div>
-    </div>
-  )
-
-  return (
-    <div ref={mapRef} className="relative h-full w-full [&>*]:h-full">
-      {connectionStatus}
-    </div>
-  )
-}
-
-export function Overview() {
-  return (
-    <ResponsiveContainer width="100%" height="100%">
-      <div className="w-full h-full pl-4">
-        <ResponsiveContainer>
-          <Map />
-        </ResponsiveContainer>
-      </div>
-    </ResponsiveContainer>
-  )
-}
-
-// function Map() {
-//   const mapRef = useRef(null)
 //   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({})
 //   const mapInstanceRef = useRef<mapboxgl.Map | null>(null)
 //   const { chargers, isConnected, error } = useChargerWebSocket("ws://localhost:8080")
 
-//   // Separate map initialization - runs only once
 //   useEffect(() => {
 //     const map = new mapboxgl.Map({
 //       container: mapRef.current as unknown as HTMLElement,
@@ -251,10 +74,11 @@ export function Overview() {
 //       markersRef.current = {}
 //       map?.remove()
 //     }
-//   }, []) // Empty dependency array - only run on mount
+//   }, []) // Only run once on mount
 
-//   // Handle marker updates separately
+//   // Separate useEffect for handling marker updates
 //   useEffect(() => {
+//     console.log("chargers", chargers)
 //     if (!mapInstanceRef.current || !chargers.length) return
 
 //     chargers.forEach((charger) => {
@@ -266,11 +90,15 @@ export function Overview() {
 //       el.style.width = "100px"
 //       el.style.height = "100px"
 //       el.style.cursor = "pointer"
+//       // el.onclick(() => {
+//       //   console.log("evo me doma")
+//       // })
 
 //       const img = document.createElement("img")
 //       img.style.width = "100%"
 //       img.style.height = "100%"
 //       img.src = getMarkerImage(charger.connector_status)
+//       // img.onclick(() => console.log("evo me doma"))
 //       el.appendChild(img)
 
 //       // Create popup
@@ -303,9 +131,9 @@ export function Overview() {
 //         delete markersRef.current[parseInt(chargerId)]
 //       }
 //     })
-//   }, [chargers]) // Only depend on chargers data
+//   }, [chargers]) // Update whenever chargers data changes
 
-//   // Connection status component
+//   // Optional: Add connection status indicator
 //   const connectionStatus = (
 //     <div className="absolute top-2 right-2 z-10 space-y-2">
 //       {error && <div className="bg-red-500 text-white px-4 py-2 rounded shadow">{error}</div>}
@@ -322,16 +150,193 @@ export function Overview() {
 //   )
 // }
 
-// export function Overview() {
-//   mapboxgl.accessToken = "pk.eyJ1IjoiZGFuaWVsZHJlamVyIiwiYSI6ImNrZ2twYjI5NjBqcjAyd2xsYXQwZHgyNDUifQ.C6IJplie4y-yK0X3Opf4yw"
+function Map() {
+  const mapRef = useRef(null)
+  const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({})
+  const mapInstanceRef = useRef<mapboxgl.Map | null>(null)
+  const { chargers = chargeBoxStatus, isConnected, error } = useChargerWebSocket("ws://localhost:8080")
 
-//   return (
-//     <ResponsiveContainer width="100%" height="100%">
-//       <div className="w-full h-full pl-4">
-//         <ResponsiveContainer>
-//           <Map />
-//         </ResponsiveContainer>
-//       </div>
-//     </ResponsiveContainer>
-//   )
-// }
+  // First useEffect - Map initialization
+  useEffect(() => {
+    if (!mapRef.current) return
+
+    const map = new mapboxgl.Map({
+      container: mapRef.current as unknown as HTMLElement,
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: [12.548914, 55.703588],
+      zoom: 12.5,
+    })
+
+    mapInstanceRef.current = map
+    map.addControl(new mapboxgl.NavigationControl(), "bottom-right")
+
+    map.on("load", () => {
+      map.resize()
+    })
+
+    return () => {
+      Object.values(markersRef.current).forEach((marker) => marker.remove())
+      markersRef.current = {}
+      map?.remove()
+    }
+  }, [])
+
+  // Second useEffect - Marker management
+  // useEffect(() => {
+  //   const map = mapInstanceRef.current
+  //   if (!map) return
+
+  //   // Wait for map to be loaded
+  //   if (!map.loaded()) {
+  //     map.on("load", () => updateMarkers())
+  //     return
+  //   }
+
+  //   updateMarkers()
+
+  //   function updateMarkers() {
+  //     console.log("Updating markers with chargers:", chargers)
+
+  //     // Remove all existing markers first
+  //     Object.values(markersRef.current).forEach((marker) => {
+  //       marker.remove()
+  //     })
+  //     markersRef.current = {}
+
+  //     // Add new markers
+  //     chargers.forEach((charger) => {
+  //       // Create marker element
+  //       const el = document.createElement("div")
+  //       el.className = "marker"
+  //       el.style.width = "100px"
+  //       el.style.height = "100px"
+  //       el.style.cursor = "pointer"
+
+  //       const img = document.createElement("img")
+  //       img.style.width = "100%"
+  //       img.style.height = "100%"
+  //       img.src = getMarkerImage(charger.connector_status)
+  //       el.appendChild(img)
+
+  //       // Add click handler
+  //       el.addEventListener("click", () => {
+  //         console.log("Marker clicked:", charger)
+  //         // Add your click handling logic here
+  //       })
+
+  //       // Create popup
+  //       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+  //         <h3>Charger ${charger.chargerId}</h3>
+  //         <p>Type: ${charger.charger_type}</p>
+  //         <p>Status: ${charger.connector_status}</p>
+  //       `)
+
+  //       // Create new marker
+  //       const newMarker = new mapboxgl.Marker(el)
+  //         .setLngLat([parseFloat(charger.location.long), parseFloat(charger.location.lat)])
+  //         .setPopup(popup)
+  //         .addTo(map)
+
+  //       markersRef.current[charger.chargerId] = newMarker
+  //     })
+  //   }
+  // }, [chargers])
+
+  useEffect(() => {
+    const map = mapInstanceRef.current
+    if (!map) return
+
+    if (!map.loaded()) {
+      map.on("load", () => updateMarkers())
+      return
+    }
+
+    updateMarkers()
+
+    function updateMarkers() {
+      Object.values(markersRef.current).forEach((marker) => {
+        marker.remove()
+      })
+      markersRef.current = {}
+
+      chargers.forEach((charger) => {
+        const el = document.createElement("button") // Change div to button for better accessibility
+        el.className = "marker focus:outline-none focus:ring-2 focus:ring-violet-500"
+        el.style.width = "100px"
+        el.style.height = "100px"
+        el.style.cursor = "pointer"
+        el.style.border = "none"
+        el.style.background = "none"
+        el.style.padding = "0"
+        el.setAttribute("aria-label", `Charger ${charger.chargerId} - ${charger.charger_type} - ${charger.connector_status}`)
+
+        const img = document.createElement("img")
+        img.style.width = "100%"
+        img.style.height = "100%"
+        img.src = getMarkerImage(charger.connector_status)
+        img.alt = `Charger ${charger.chargerId} status indicator`
+        img.setAttribute("aria-hidden", "true") // Image is decorative
+        el.appendChild(img)
+
+        el.addEventListener("click", (e) => {
+          e.preventDefault() // Prevent default button behavior
+          handleMarkerClick(charger)
+        })
+
+        // Create popup with accessible interactive content
+        const popup = new mapboxgl.Popup({
+          offset: 25,
+          closeButton: true,
+          focusAfterOpen: false, // Prevent automatic focus management
+        }).setHTML(`
+          <div class="p-2" role="dialog" aria-label="Charger Details">
+            <h3 class="font-bold text-lg">Charger ${charger.chargerId}</h3>
+            <p class="text-sm">Type: ${charger.charger_type}</p>
+            <p class="text-sm">Status: ${charger.connector_status}</p>
+            <AngryRobotBassButton></AngryRobotBassButton>
+          </div>
+        `)
+
+        const newMarker = new mapboxgl.Marker({
+          element: el,
+          anchor: "bottom",
+        })
+          .setLngLat([parseFloat(charger.location.long), parseFloat(charger.location.lat)])
+          .setPopup(popup)
+          .addTo(map)
+
+        markersRef.current[charger.chargerId] = newMarker
+      })
+    }
+  }, [chargers])
+
+  // Connection status indicator
+  const connectionStatus = (
+    <div className="absolute top-2 right-2 z-10 space-y-2">
+      {error && <div className="bg-red-500 text-white px-4 py-2 rounded shadow">{error}</div>}
+      <div className={`px-4 py-2 rounded shadow ${isConnected ? "bg-green-500" : "bg-yellow-500"} text-white`}>
+        {isConnected ? `Connected (${chargers.length} chargers)` : "Connecting..."}
+      </div>
+    </div>
+  )
+
+  return (
+    <div ref={mapRef} className="relative h-full w-full [&>*]:h-full">
+      {connectionStatus}
+    </div>
+  )
+}
+
+export function Overview() {
+  mapboxgl.accessToken = "pk.eyJ1IjoiZGFuaWVsZHJlamVyIiwiYSI6ImNrZ2twYjI5NjBqcjAyd2xsYXQwZHgyNDUifQ.C6IJplie4y-yK0X3Opf4yw"
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full h-full pl-4">
+        <ResponsiveContainer>
+          <Map />
+        </ResponsiveContainer>
+      </div>
+    </ResponsiveContainer>
+  )
+}
