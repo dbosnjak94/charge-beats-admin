@@ -8,6 +8,7 @@ import green800dot from "@/assets/green-800-dot.png"
 import orange600dot from "@/assets/orange-600-dot.png"
 import red600dot from "@/assets/red-600-dot.png"
 import blue500dot from "@/assets/blue-500-dot.png"
+import greydot from "@/assets/grey-dot.png"
 import { useChargerWebSocket } from "@/hooks/use-charger-web-socket"
 import TechnoDrumButton from "@/sounds/techno/tehcno-drum"
 import AngryRobotBassButton from "@/sounds/drum-and-bass/angry-robot-bass"
@@ -30,7 +31,7 @@ function getMarkerImage(status) {
     case "unavailable":
       return red600dot
     default:
-      return orange600dot
+      return greydot
   }
 }
 
@@ -39,7 +40,7 @@ function getMarkerColor(status) {
     case "available":
       return "#10B981" // Green
     case "charging":
-      return "#3B82F6" // Blue
+      return "#3B82F6" // tailwind color: blue-500
     case "unavailable":
       return "#EF4444" // Red
     default:
