@@ -9,6 +9,9 @@ import greydot from "@/assets/grey-dot.png"
 import { useChargerWebSocket } from "@/hooks/use-charger-web-socket"
 import { playAngryRobotBass } from "@/sounds/drum-and-bass/angry-robot-bass"
 import { toggleTechnoSynth } from "@/sounds/drum-and-bass/techno-synth"
+import { toggleTechnoDrums } from "@/sounds/techno/tehcno-drum"
+import { toggleAcidLead } from "@/sounds/techno/acid-lead"
+import { toggleAcidBass } from "@/sounds/techno/acid-bass"
 
 const chargeBoxStatus = [
   { chargerId: 38001, location: { lat: "55.697874", long: "12.544396" }, charger_type: "DC", connector_status: "available" },
@@ -37,7 +40,9 @@ function musicMapper(connectorStatus: string) {
     case "available":
       return playAngryRobotBass // Return function reference
     case "charging":
-      return () => toggleTechnoSynth(false, () => {}, { current: null }, { current: null })
+      return () => toggleAcidLead(false, () => {}, { current: null }, { current: null })
+    case "unavailable":
+      return () => toggleAcidBass(false, () => {}, { current: null }, { current: null })
     default:
       return playAngryRobotBass
   }
@@ -56,7 +61,7 @@ function Map() {
     const map = new mapboxgl.Map({
       container: mapRef.current as unknown as HTMLElement,
       style: "mapbox://styles/mapbox/streets-v11",
-      center: [12.548914, 55.703588],
+      center: [12.562763, 55.706628],
       zoom: 12.5,
     })
 

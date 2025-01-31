@@ -3,6 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { IconChargingPile } from "@tabler/icons-react"
 import { useChargerWebSocket } from "@/hooks/use-charger-web-socket"
+import { stopAllMusic } from "@/sounds/music-manager"
 
 const getStatusColor = (status) => {
   const colors = {
@@ -39,31 +40,32 @@ export function RecentSales() {
   }
 
   return (
-    <ScrollArea className="h-[500px]">
-      <div className="space-y-8 p-4">
-        {chargers.map((item) => (
-          <div key={item.chargerId} className="flex items-center gap-4">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src="/avatars/01.png" alt="Avatar" />
-              <AvatarFallback className={getStatusColor(item.connector_status)}>
-                <IconChargingPile className="pl-1" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-1 flex-wrap items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">{item.chargerId} ID </p>
-                <p className="text-sm text-muted-foreground">{item.connector_status}</p>
-              </div>
-              <div className="font-medium">
-                <Button className="w-full bg-violet-300 text-black">Show on the map</Button>
-              </div>
+    <div className="space-y-8 p-4">
+      {chargers.map((item) => (
+        <div key={item.chargerId} className="flex items-center gap-4">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src="/avatars/01.png" alt="Avatar" />
+            <AvatarFallback className={getStatusColor(item.connector_status)}>
+              <IconChargingPile className="pl-1" />
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-1 flex-wrap items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium leading-none">{item.chargerId} ID </p>
+              <p className="text-sm text-muted-foreground">{item.connector_status}</p>
+            </div>
+            <div className="font-medium">
+              <Button className="w-full bg-violet-300 text-black hover:bg-violet-400">Show on the map</Button>
             </div>
           </div>
-        ))}
+        </div>
+      ))}
 
-        {/* Show message when no chargers are available */}
-        {chargers.length === 0 && <div className="text-center text-muted-foreground">No chargers currently available</div>}
-      </div>
-    </ScrollArea>
+      {/* Show message when no chargers are available */}
+      {chargers.length === 0 && <div className="text-center text-muted-foreground">No chargers currently available</div>}
+      <Button onClick={stopAllMusic} className="bg-black hover:bg-stone-600">
+        Stop listening to chargers
+      </Button>
+    </div>
   )
 }

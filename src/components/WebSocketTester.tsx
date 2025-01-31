@@ -6,7 +6,7 @@ export function WebSocketTester() {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">WebSocket Tester</h2>
+      <h2 className="text-xl font-bold mb-4">Data Stream</h2>
 
       <div className="space-y-4">
         <div className="p-4 rounded border">

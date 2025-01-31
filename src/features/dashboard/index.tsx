@@ -69,7 +69,7 @@ export default function Dashboard() {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Faulty</CardTitle>
+                  <CardTitle className="text-sm font-medium">Offline</CardTitle>
                   <IconPlugX />
                 </CardHeader>
                 <CardContent>
